@@ -28,6 +28,9 @@ def create_app():
     from routes.compare import compare_bp
     app.register_blueprint(compare_bp)
 
+    from routes.analytics import analytics_bp
+    app.register_blueprint(analytics_bp)
+
     return app
 
 if __name__ == '__main__':

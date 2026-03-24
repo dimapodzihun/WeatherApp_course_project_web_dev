@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session
 
 import services.openweather as weather_api
 import services.weather_insights as weather_insights
+import services.long_term_forecast as long_term_forecast
 import services.weather_ml as weather_ml
 from models import User, db
 from utils import login_required
@@ -43,6 +44,7 @@ def index():
     forecast_5d = weather_api.get_forecast_5days(city_name) or []
     recommendations = weather_insights.build_personal_recommendations(current_weather, raw_forecast)
     alerts = weather_insights.build_weather_alerts(current_weather, raw_forecast)
+    extended_summary = long_term_forecast.build_long_term_summary(selected_city_obj.id)
 
     selected_date = request.args.get("date")
     if selected_date:
@@ -62,6 +64,7 @@ def index():
         hourly=hourly_data,
         recommendations=recommendations,
         alerts=alerts,
+        extended_summary=extended_summary,
     )
 
 

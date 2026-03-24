@@ -107,6 +107,56 @@
     </div>
     {% endif %}
 
+    {% if extended_summary and extended_summary.outlook_14 %}
+    <div class="space-y-4">
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+                <h3 class="text-[20px] font-semibold text-[#1F2937]">Довгострокове прогнозування</h3>
+                <p class="text-[14px] text-[#6B7280]">Аналітична оцінка на базі короткострокового прогнозу та накопиченої історії спостережень</p>
+            </div>
+            <div class="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 shadow-sm">
+                <div class="text-[13px] text-[#6B7280]">Загальна тенденція</div>
+                <div class="text-[16px] font-semibold text-[#1F2937] mt-1">{{ extended_summary.trend_label }}</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
+                <div class="text-[13px] text-[#6B7280]">Середній максимум на 14 днів</div>
+                <div class="mt-2 text-[28px] font-bold text-[#1F2937]">{{ extended_summary.avg_14 }} °C</div>
+            </div>
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
+                <div class="text-[13px] text-[#6B7280]">Середній максимум на 30 днів</div>
+                <div class="mt-2 text-[28px] font-bold text-[#1F2937]">{{ extended_summary.avg_30 }} °C</div>
+            </div>
+        </div>
+
+        <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
+                <h4 class="text-[18px] font-semibold text-[#1F2937]">Перші 14 днів аналітичного outlook</h4>
+                <span class="text-[13px] text-[#6B7280]">Це не прямий API forecast, а модельне продовження тенденції</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                {% for day in extended_summary.outlook_14 %}
+                <div class="rounded-xl border border-[#E5E7EB] bg-[#FCFCFD] p-4">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <div class="text-[15px] font-semibold text-[#1F2937]">{{ day.weekday }}</div>
+                            <div class="text-[13px] text-[#6B7280]">{{ day.date }}</div>
+                        </div>
+                        <span class="rounded-full bg-[#EFF6FF] px-2.5 py-1 text-[12px] font-medium text-[#1D4ED8]">{{ day.confidence }}%</span>
+                    </div>
+                    <div class="mt-4 text-[22px] font-bold text-[#1F2937]">{{ day.temp_max }} °C</div>
+                    <div class="text-[14px] text-[#6B7280]">Мінімум: {{ day.temp_min }} °C</div>
+                    <div class="text-[14px] text-[#6B7280]">Вологість: {{ day.humidity }}%</div>
+                    <div class="mt-3 text-[13px] text-[#374151]">{{ day.description }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div id="hourly-section">
         {% if hourly %}
         {% include 'partials/hourly_slots.html' %}

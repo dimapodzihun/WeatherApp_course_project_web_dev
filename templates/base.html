@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WeatherApp - Твоя Погода</title>
+    <title>WeatherApp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/htmx.org@1.9.5"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js"></script>
@@ -36,6 +36,7 @@
                     <a href="/" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Головна</a>
                     <a href="/forecast" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Прогноз</a>
                     <a href="/charts" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Графіки</a>
+                    <a href="/analytics" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Аналітика</a>
                     <a href="/compare" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Порівняння</a>
                     <div class="h-6 w-px bg-[#E5E7EB] mx-2"></div>
                     <span class="text-[14px] text-[#6B7280]">{{ session.get('user_email', '') }}</span>
@@ -43,7 +44,7 @@
                     <button onclick="document.getElementById('delete-account-modal').classList.remove('hidden')" class="text-[13px] font-medium text-white bg-[#DC2626] hover:bg-red-700 px-3 py-1.5 rounded-lg transition">Видалити акаунт</button>
                 {% else %}
                     <a href="/login" class="text-[15px] font-medium text-[#1F2937] hover:text-[#2563EB] transition">Увійти</a>
-                    <a href="/register" class="bg-[#2563EB] text-white px-4 py-2 rounded-lg text-[14px] font-medium hover:bg-blue-700 transition">Зареєструватись</a>
+                    <a href="/register" class="bg-[#2563EB] text-white px-4 py-2 rounded-lg text-[14px] font-medium hover:bg-blue-700 transition">Зареєструватися</a>
                 {% endif %}
             </div>
 
@@ -58,6 +59,7 @@
                 <a href="/" class="block text-[16px] font-medium text-[#1F2937]">Головна</a>
                 <a href="/forecast" class="block text-[16px] font-medium text-[#1F2937]">Прогноз</a>
                 <a href="/charts" class="block text-[16px] font-medium text-[#1F2937]">Графіки</a>
+                <a href="/analytics" class="block text-[16px] font-medium text-[#1F2937]">Аналітика</a>
                 <a href="/compare" class="block text-[16px] font-medium text-[#1F2937]">Порівняння</a>
                 <div class="mt-4 pt-4 border-t border-[#E5E7EB] space-y-2">
                     <div class="text-[14px] text-[#6B7280]">{{ session.get('user_email', '') }}</div>
@@ -66,7 +68,7 @@
                 <button onclick="document.getElementById('delete-account-modal').classList.remove('hidden')" class="block w-full text-left text-[16px] font-medium text-white bg-[#DC2626] hover:bg-red-700 px-3 py-2 rounded-lg mt-2 transition">Видалити акаунт</button>
             {% else %}
                 <a href="/login" class="block text-[16px] font-medium text-[#1F2937]">Увійти</a>
-                <a href="/register" class="block text-[16px] font-medium text-[#2563EB]">Зареєструватись</a>
+                <a href="/register" class="block text-[16px] font-medium text-[#2563EB]">Зареєструватися</a>
             {% endif %}
         </div>
     </nav>
@@ -112,7 +114,7 @@
                     <svg class="w-7 h-7 text-[#DC2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
                 </div>
                 <h2 class="text-[20px] font-bold text-[#1F2937] mb-2">Видалити акаунт?</h2>
-                <p class="text-[14px] text-[#6B7280] mb-6">Це незворотня дія. Всі ваші збережені міста та дані будуть <strong>назавжди видалені</strong>.</p>
+                <p class="text-[14px] text-[#6B7280] mb-6">Це незворотна дія. Усі збережені міста та історія погоди будуть видалені.</p>
                 <div class="flex gap-3 w-full">
                     <button onclick="document.getElementById('delete-account-modal').classList.add('hidden')" class="flex-1 bg-[#F3F4F6] text-[#1F2937] border border-[#E5E7EB] rounded-lg px-4 py-2 font-medium hover:bg-gray-200 transition">Скасувати</button>
                     <form action="/account/delete" method="POST" class="flex-1">
