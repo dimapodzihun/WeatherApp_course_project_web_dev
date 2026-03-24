@@ -1,0 +1,15 @@
+{% if not cities %}
+<div class="bg-white border border-dashed border-[#E5E7EB] rounded-xl p-10 text-center col-span-full">
+    <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+    </div>
+    <h3 class="text-[18px] font-semibold text-[#1F2937] mb-2">У вас ще немає збережених міст</h3>
+    <p class="text-[#6B7280] text-[14px]">Знайдіть своє перше місто через пошук вище, щоб завжди легко перевіряти там погоду!</p>
+</div>
+{% else %}
+{% for city in cities %}
+    <div class="city-card">
+        {% include 'partials/city_card.html' %}
+    </div>
+{% endfor %}
+{% endif %}

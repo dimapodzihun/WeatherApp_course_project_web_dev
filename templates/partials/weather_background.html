@@ -1,0 +1,64 @@
+{% set icon_code = weather.icon[:2] %}
+<div class="absolute inset-0 z-0 overflow-hidden rounded-xl transition-all duration-1000 
+{% if icon_code in ['01'] %}
+    weather-bg-clear
+{% elif icon_code in ['02', '03', '04', '50'] %}
+    weather-bg-clouds
+{% elif icon_code in ['09', '10'] %}
+    weather-bg-rain
+{% elif icon_code in ['13'] %}
+    weather-bg-snow
+{% elif icon_code in ['11'] %}
+    weather-bg-thunder
+{% else %}
+    bg-white
+{% endif %}">
+
+    <!-- Ясно: Пульсуюче сонце -->
+    {% if icon_code in ['01', '02'] %}
+    <div class="absolute top-[-20px] right-[10%] w-48 h-48 bg-yellow-300 rounded-full blur-[60px] animate-sun-pulse mix-blend-screen"></div>
+    {% endif %}
+
+    <!-- Хмарно: Рухомі хмари -->
+    {% if icon_code in ['02', '03', '04', '50'] %}
+    <div class="absolute top-5 w-[200%] h-32 opacity-20 animate-cloud-drift flex justify-around items-center">
+        <svg class="w-32 h-32 text-white animate-float-cloud" fill="currentColor" viewBox="0 0 24 24" style="animation-delay: 0s"><path d="M6 14c-1.657 0-3-1.343-3-3s1.343-3 3-3c.422 0 .822.09 1.189.248C7.818 5.792 9.771 4 12 4c2.511 0 4.605 1.815 4.957 4.22C18.665 8.448 20 9.873 20 11.5c0 1.933-1.567 3.5-3.5 3.5H6z"/></svg>
+        <svg class="w-48 h-48 text-white animate-float-cloud" fill="currentColor" viewBox="0 0 24 24" style="animation-delay: 1s"><path d="M6 14c-1.657 0-3-1.343-3-3s1.343-3 3-3c.422 0 .822.09 1.189.248C7.818 5.792 9.771 4 12 4c2.511 0 4.605 1.815 4.957 4.22C18.665 8.448 20 9.873 20 11.5c0 1.933-1.567 3.5-3.5 3.5H6z"/></svg>
+        <svg class="w-32 h-32 text-white animate-float-cloud" fill="currentColor" viewBox="0 0 24 24" style="animation-delay: 2s"><path d="M6 14c-1.657 0-3-1.343-3-3s1.343-3 3-3c.422 0 .822.09 1.189.248C7.818 5.792 9.771 4 12 4c2.511 0 4.605 1.815 4.957 4.22C18.665 8.448 20 9.873 20 11.5c0 1.933-1.567 3.5-3.5 3.5H6z"/></svg>
+        <svg class="w-40 h-40 text-white animate-float-cloud" fill="currentColor" viewBox="0 0 24 24" style="animation-delay: 1.5s"><path d="M6 14c-1.657 0-3-1.343-3-3s1.343-3 3-3c.422 0 .822.09 1.189.248C7.818 5.792 9.771 4 12 4c2.511 0 4.605 1.815 4.957 4.22C18.665 8.448 20 9.873 20 11.5c0 1.933-1.567 3.5-3.5 3.5H6z"/></svg>
+    </div>
+    {% endif %}
+
+    <!-- Дощ: Краплі -->
+    {% if icon_code in ['09', '10', '11'] %}
+    <div class="absolute inset-0 pointer-events-none flex justify-evenly opacity-40 mix-blend-overlay">
+        <div class="w-1 h-12 bg-white animate-fall" style="animation-delay: 0s;"></div>
+        <div class="w-1 h-16 bg-white animate-fall" style="animation-delay: 0.3s;"></div>
+        <div class="w-1 h-8 bg-white animate-fall" style="animation-delay: 0.7s;"></div>
+        <div class="w-1 h-20 bg-white animate-fall" style="animation-delay: 0.1s;"></div>
+        <div class="w-1 h-10 bg-white animate-fall" style="animation-delay: 0.5s;"></div>
+        <div class="w-1 h-16 bg-white animate-fall" style="animation-delay: 0.9s;"></div>
+        <div class="w-1 h-12 bg-white animate-fall" style="animation-delay: 0.4s;"></div>
+        <div class="w-1 h-14 bg-white animate-fall" style="animation-delay: 0.2s;"></div>
+    </div>
+    {% endif %}
+    
+    <!-- Сніг -->
+    {% if icon_code in ['13'] %}
+    <div class="absolute inset-0 pointer-events-none flex justify-evenly opacity-70 text-white text-3xl mix-blend-overlay">
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0s;">❅</div>
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0.2s;">❄</div>
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0.5s;">❅</div>
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0.8s;">❄</div>
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0.3s;">❅</div>
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0.7s;">❄</div>
+        <div class="animate-fall animate-sway-rain" style="animation-delay: 0.1s;">❅</div>
+    </div>
+    {% endif %}
+    
+    <!-- Гроза: додатковий ефект -->
+    {% if icon_code in ['11'] %}
+    <div class="absolute inset-0 bg-white opacity-0 animate-sun-pulse" style="animation-duration: 4s; mix-blend-mode: overlay;"></div>
+    {% endif %}
+
+</div>

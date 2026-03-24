@@ -1,0 +1,8 @@
+<div id="main-weather-block" hx-get="/weather/current" hx-trigger="every 10m" hx-swap="outerHTML" class="relative bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm overflow-hidden min-h-[220px]">
+    {% set weather = current_weather %}
+    {% include 'partials/weather_background.html' %}
+    <div class="relative z-10">
+        {% set is_main_current = True %}
+        {% include 'partials/weather_card.html' %}
+    </div>
+</div>

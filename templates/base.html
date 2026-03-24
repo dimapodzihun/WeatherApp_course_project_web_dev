@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeatherApp - Твоя Погода</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.5"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.0/dist/cdn.min.js"></script>
+    <link href="{{ url_for('static', filename='css/animations.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; }
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: inline-block; }
+        .htmx-request.htmx-indicator { display: inline-block; }
+        .htmx-request .default-icon { display: none; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+    </style>
+</head>
+<body class="text-[#1F2937] min-h-screen flex flex-col pt-16">
+    <nav class="bg-white border-b border-[#E5E7EB] fixed w-full top-0 z-40 shadow-sm" x-data="{ mobileMenu: false }">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2">
+                <svg class="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+                <span class="text-[20px] font-bold text-[#1F2937]">WeatherApp</span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-6">
+                {% if session.get('user_id') %}
+                    <a href="/" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Головна</a>
+                    <a href="/forecast" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Прогноз</a>
+                    <a href="/charts" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Графіки</a>
+                    <a href="/compare" class="text-[15px] font-medium text-[#6B7280] hover:text-[#2563EB] transition">Порівняння</a>
+                    <div class="h-6 w-px bg-[#E5E7EB] mx-2"></div>
+                    <span class="text-[14px] text-[#6B7280]">{{ session.get('user_email', '') }}</span>
+                    <a href="/logout" class="text-[14px] font-medium text-[#DC2626] hover:text-red-800 transition">Вийти</a>
+                    <button onclick="document.getElementById('delete-account-modal').classList.remove('hidden')" class="text-[13px] font-medium text-white bg-[#DC2626] hover:bg-red-700 px-3 py-1.5 rounded-lg transition">Видалити акаунт</button>
+                {% else %}
+                    <a href="/login" class="text-[15px] font-medium text-[#1F2937] hover:text-[#2563EB] transition">Увійти</a>
+                    <a href="/register" class="bg-[#2563EB] text-white px-4 py-2 rounded-lg text-[14px] font-medium hover:bg-blue-700 transition">Зареєструватись</a>
+                {% endif %}
+            </div>
+
+            <button @click="mobileMenu = !mobileMenu" class="md:hidden p-2 text-[#6B7280] hover:text-[#1F2937]">
+                <svg x-show="!mobileMenu" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg x-show="mobileMenu" style="display: none;" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <div x-show="mobileMenu" x-transition.opacity style="display: none;" class="md:hidden bg-white border-b border-[#E5E7EB] px-4 py-4 space-y-4 shadow-lg absolute w-full left-0 top-16">
+            {% if session.get('user_id') %}
+                <a href="/" class="block text-[16px] font-medium text-[#1F2937]">Головна</a>
+                <a href="/forecast" class="block text-[16px] font-medium text-[#1F2937]">Прогноз</a>
+                <a href="/charts" class="block text-[16px] font-medium text-[#1F2937]">Графіки</a>
+                <a href="/compare" class="block text-[16px] font-medium text-[#1F2937]">Порівняння</a>
+                <div class="mt-4 pt-4 border-t border-[#E5E7EB] space-y-2">
+                    <div class="text-[14px] text-[#6B7280]">{{ session.get('user_email', '') }}</div>
+                    <a href="/logout" class="block text-[16px] font-medium text-[#DC2626]">Вийти</a>
+                </div>
+                <button onclick="document.getElementById('delete-account-modal').classList.remove('hidden')" class="block w-full text-left text-[16px] font-medium text-white bg-[#DC2626] hover:bg-red-700 px-3 py-2 rounded-lg mt-2 transition">Видалити акаунт</button>
+            {% else %}
+                <a href="/login" class="block text-[16px] font-medium text-[#1F2937]">Увійти</a>
+                <a href="/register" class="block text-[16px] font-medium text-[#2563EB]">Зареєструватись</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="flex-1 p-4 md:p-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let bgClass = 'bg-[#059669]';
+            if (type === 'error') bgClass = 'bg-[#DC2626]';
+            if (type === 'warning') bgClass = 'bg-[#D97706]';
+
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg text-[14px] font-medium flex items-center gap-3 animate-fade-in transition-all duration-300 transform`;
+
+            let iconSvg = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            if (type === 'error') iconSvg = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            if (type === 'warning') iconSvg = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
+
+            toast.innerHTML = `${iconSvg} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            const duration = type === 'error' ? 4000 : 3000;
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+    </script>
+
+    {% if session.get('user_id') %}
+    <div id="delete-account-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-14 h-14 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                    <svg class="w-7 h-7 text-[#DC2626]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                </div>
+                <h2 class="text-[20px] font-bold text-[#1F2937] mb-2">Видалити акаунт?</h2>
+                <p class="text-[14px] text-[#6B7280] mb-6">Це незворотня дія. Всі ваші збережені міста та дані будуть <strong>назавжди видалені</strong>.</p>
+                <div class="flex gap-3 w-full">
+                    <button onclick="document.getElementById('delete-account-modal').classList.add('hidden')" class="flex-1 bg-[#F3F4F6] text-[#1F2937] border border-[#E5E7EB] rounded-lg px-4 py-2 font-medium hover:bg-gray-200 transition">Скасувати</button>
+                    <form action="/account/delete" method="POST" class="flex-1">
+                        <button type="submit" class="w-full bg-[#DC2626] text-white rounded-lg px-4 py-2 font-medium hover:bg-red-700 transition">Так, видалити</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul id="flask-messages" style="display: none;">
+                {% for category, message in messages %}
+                <li data-category="{{ category }}" data-message="{{ message }}"></li>
+                {% endfor %}
+            </ul>
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    const msgs = document.querySelectorAll('#flask-messages li');
+                    msgs.forEach(function(msg) {
+                        showToast(msg.dataset.message, msg.dataset.category);
+                    });
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+            <h2 class="text-[24px] font-semibold text-[#1F2937]">Прогноз для {{ selected_city }} {% if selected_flag %}<span aria-hidden="true">{{ selected_flag }}</span>{% endif %}</h2>
+            {% if selected_country %}
+            <p class="text-[#6B7280] text-[14px] mt-1">Код країни: {{ selected_country }}</p>
+            {% endif %}
+        </div>
+        <form hx-get="/forecast" hx-target="body" hx-push-url="true">
+            <select name="city" class="border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] outline-none" onchange="this.form.dispatchEvent(new Event('submit'))">
+                {% for c in cities %}
+                <option value="{{ c.city_name }}" {% if c.city_name == selected_city %}selected{% endif %}>{{ c.city_name }}</option>
+                {% endfor %}
+            </select>
+            <noscript><button type="submit">Оновити</button></noscript>
+        </form>
+    </div>
+
+    {% if current_weather and "error" not in current_weather %}
+    {% if current_weather.comfort_ml %}
+    <div class="rounded-xl border border-[#DBEAFE] bg-[#EFF6FF] p-5 shadow-sm">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div>
+                <h3 class="text-[18px] font-semibold text-[#1D4ED8]">ML-оцінка комфортності погоди</h3>
+                <p class="text-[14px] text-[#475569] mt-1">
+                    Модель `Decision Tree Classifier` оцінює поточні умови за температурою, вологістю, тиском і вітром.
+                </p>
+            </div>
+            <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[14px] font-semibold
+                {% if current_weather.comfort_ml.slug == 'comfortable' %}bg-[#DCFCE7] text-[#166534]
+                {% elif current_weather.comfort_ml.slug == 'moderate' %}bg-[#FEF3C7] text-[#92400E]
+                {% else %}bg-[#FEE2E2] text-[#991B1B]{% endif %}">
+                {{ current_weather.comfort_ml.label }}
+                {% if current_weather.comfort_ml.confidence %}
+                <span class="text-[12px] opacity-80">({{ current_weather.comfort_ml.confidence }}%)</span>
+                {% endif %}
+            </div>
+        </div>
+        <p class="text-[13px] text-[#64748B] mt-3">
+            {% if current_weather.comfort_ml.source == 'ml' %}
+            Оцінка побудована моделлю `Decision Tree Classifier`, навченою на {{ current_weather.comfort_ml.samples }} записах з `weather_history`.
+            {% else %}
+            Даних у `weather_history` поки недостатньо для стабільного навчання, тому використано rule-based оцінку.
+            {% endif %}
+        </p>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-[18px] font-semibold text-[#1F2937]">Персональні рекомендації</h3>
+                <span class="text-[13px] text-[#6B7280]">На основі поточних умов і короткого прогнозу</span>
+            </div>
+            <div class="space-y-3">
+                {% for item in recommendations %}
+                <div class="flex gap-3 rounded-lg bg-[#F8FAFC] border border-[#E5E7EB] px-4 py-3">
+                    <span class="text-[#2563EB] font-bold">•</span>
+                    <p class="text-[14px] text-[#1F2937]">{{ item }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="bg-white border border-[#FDE68A] rounded-xl p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-[18px] font-semibold text-[#92400E]">Попередження про зміни</h3>
+                <span class="text-[13px] text-[#A16207]">Найближчі години</span>
+            </div>
+            {% if alerts %}
+            <div class="space-y-3">
+                {% for alert in alerts %}
+                <div class="rounded-lg bg-[#FFFBEB] border border-[#FDE68A] px-4 py-3 text-[14px] text-[#92400E]">
+                    {{ alert }}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] px-4 py-3 text-[14px] text-[#166534]">
+                Небезпечних змін у найближчому прогнозі не виявлено.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if forecast %}
+    <h3 class="text-[20px] font-semibold text-[#1F2937]">Прогноз на 5 днів</h3>
+    <div class="flex flex-col lg:flex-row gap-4">
+        {% for day in forecast %}
+        <div class="flex-1 bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm text-center cursor-pointer transition hover:shadow-md day-card {% if day.date_iso == selected_date %}ring-2 ring-[#2563EB] border-transparent{% endif %}"
+             hx-get="/forecast/hourly?city={{ selected_city|urlencode }}&date={{ day.date_iso }}&weekday={{ day.weekday }}"
+             hx-target="#hourly-section"
+             hx-swap="innerHTML"
+             hx-on::after-request="highlightDay(this)">
+            <div class="text-[#1F2937] font-semibold text-[16px]">{{ day.weekday }}</div>
+            <div class="text-[#6B7280] text-[13px]">{{ day.date }}</div>
+            <img src="https://openweathermap.org/img/wn/{{ day.icon }}@2x.png" alt="icon" class="mx-auto w-16 h-16 my-2">
+            <div class="text-[20px] font-bold text-[#1F2937]">{{ day.temp_max }}°</div>
+            <div class="text-[14px] text-[#6B7280]">{{ day.temp_min }}°</div>
+            <div class="text-[12px] text-[#6B7280] mt-2">{{ day.description|capitalize }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div id="hourly-section">
+        {% if hourly %}
+        {% include 'partials/hourly_slots.html' %}
+        {% endif %}
+    </div>
+
+    {% if not cities %}
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm">
+        <p class="text-[#6B7280] text-[16px]">У вас немає збережених міст. Додайте місто на головній сторінці.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function highlightDay(el) {
+    document.querySelectorAll('.day-card').forEach(function(card) {
+        card.classList.remove('ring-2', 'ring-[#2563EB]', 'border-transparent');
+        card.classList.add('border-[#E5E7EB]');
+    });
+    el.classList.add('ring-2', 'ring-[#2563EB]', 'border-transparent');
+    el.classList.remove('border-[#E5E7EB]');
+}
+</script>
+{% endblock %}

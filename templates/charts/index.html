@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-[24px] font-semibold text-[#1F2937]">Графіки погоди</h2>
+            <p class="text-[#6B7280] text-[14px]">Прогнозні графіки на основі OpenWeather API</p>
+        </div>
+
+        <form id="charts-form" class="flex flex-col sm:flex-row gap-3"
+              hx-get="/charts" hx-target="body" hx-push-url="true">
+            <select name="city_id" class="border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] outline-none" onchange="this.form.dispatchEvent(new Event('submit'))">
+                {% for c in cities %}
+                <option value="{{ c.id }}" {% if c.id == selected_city_id %}selected{% endif %}>{{ c.city_name }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="flex bg-[#F3F4F6] p-1 rounded-lg">
+                <button type="submit" name="days" value="1" class="px-4 py-1.5 text-[13px] font-medium rounded-md transition {% if days == 1 %}bg-white shadow-sm text-[#2563EB]{% else %}text-[#6B7280] hover:text-[#1F2937]{% endif %}">1 день</button>
+                <button type="submit" name="days" value="3" class="px-4 py-1.5 text-[13px] font-medium rounded-md transition {% if days == 3 %}bg-white shadow-sm text-[#2563EB]{% else %}text-[#6B7280] hover:text-[#1F2937]{% endif %}">3 дні</button>
+                <button type="submit" name="days" value="5" class="px-4 py-1.5 text-[13px] font-medium rounded-md transition {% if days == 5 %}bg-white shadow-sm text-[#2563EB]{% else %}text-[#6B7280] hover:text-[#1F2937]{% endif %}">5 днів</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="charts-container" class="space-y-6"
+         {% if selected_city_id %}
+         hx-get="/charts/data?city_id={{ selected_city_id }}&days={{ days }}"
+         hx-trigger="every 10m"
+         hx-swap="innerHTML"
+         {% endif %}>
+        {% include 'partials/charts_content.html' %}
+    </div>
+
+    {% if not cities %}
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm">
+        <p class="text-[#6B7280] text-[16px]">У вас немає збережених міст. Додайте місто на головній сторінці.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+{% endblock %}

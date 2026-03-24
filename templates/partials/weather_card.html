@@ -1,0 +1,60 @@
+{% if is_main_current %}
+<div class="flex flex-col md:flex-row items-center justify-between">
+    <div>
+        <h1 class="text-[32px] font-bold text-[#1F2937]">{{ weather.city }}, {{ weather.country_name or weather.country }}</h1>
+        <p class="text-[#6B7280] mt-1">{{ weather.description }}</p>
+        <p class="text-[#1F2937] font-medium mt-4 items-center">
+            Відчувається як: {{ weather.feels_like }}°C · Вологість: {{ weather.humidity }}% · Вітер: {{ weather.wind_speed }} м/с
+        </p>
+        {% if weather.comfort_ml %}
+        <div class="mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[13px] font-medium
+            {% if weather.comfort_ml.slug == 'comfortable' %}bg-[#DCFCE7] text-[#166534]
+            {% elif weather.comfort_ml.slug == 'moderate' %}bg-[#FEF3C7] text-[#92400E]
+            {% else %}bg-[#FEE2E2] text-[#991B1B]{% endif %}">
+            ML-оцінка: {{ weather.comfort_ml.label }}
+            {% if weather.comfort_ml.confidence %}
+            <span class="text-[12px] opacity-80">({{ weather.comfort_ml.confidence }}%)</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        <p class="text-[13px] text-[#6B7280] mt-4">Оновлено о {{ weather.updated_at }}</p>
+    </div>
+    <div class="flex items-center gap-4 mt-6 md:mt-0">
+        <img src="https://openweathermap.org/img/wn/{{ weather.icon }}@4x.png" alt="weather icon" class="w-32 h-32 object-contain">
+        <span class="text-[48px] font-bold text-[#2563EB]">{{ weather.temperature }}°C</span>
+    </div>
+</div>
+{% else %}
+<div class="bg-white border border-[#E5E7EB] rounded-xl p-4 shadow-sm flex items-center justify-between animate-fade-in mt-3">
+    <div class="flex items-center gap-3">
+        <img src="https://openweathermap.org/img/wn/{{ weather.icon }}.png" alt="icon" class="w-12 h-12">
+        <div>
+            <h3 class="text-[16px] font-semibold text-[#1F2937]">{{ weather.city }}, {{ weather.country_name or weather.country }}</h3>
+            <p class="text-[12px] text-[#6B7280]">{{ weather.temperature }}°C · {{ weather.description }}</p>
+            {% if weather.comfort_ml %}
+            <p class="text-[12px] mt-1
+                {% if weather.comfort_ml.slug == 'comfortable' %}text-[#166534]
+                {% elif weather.comfort_ml.slug == 'moderate' %}text-[#92400E]
+                {% else %}text-[#991B1B]{% endif %}">
+                ML: {{ weather.comfort_ml.label }}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if session.get('user_id') %}
+    <form hx-post="/cities/save" hx-swap="none"
+          hx-on::after-request="if(event.detail.successful){ if(typeof showToast === 'function') showToast('Місто додано до збережених!', 'success'); setTimeout(() => htmx.trigger('body', 'refresh-cities'), 500); }">
+        <input type="hidden" name="city_name" value="{{ weather.city }}">
+        <input type="hidden" name="country_code" value="{{ weather.country }}">
+        <button type="submit" class="text-[13px] font-medium text-[#2563EB] hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg transition">
+            ★ Зберегти
+        </button>
+    </form>
+    {% else %}
+    <button hx-get="/auth/hint" hx-target="#hint-container" class="text-[13px] font-medium text-[#D97706] hover:text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg transition">
+        ★ Зберегти
+    </button>
+    {% endif %}
+</div>
+{% endif %}

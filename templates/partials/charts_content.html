@@ -1,0 +1,61 @@
+{% if not temp_hourly_chart and not forecast_minmax_chart %}
+<div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm col-span-full">
+    <p class="text-[#6B7280] text-[16px]">Недостатньо даних для відображення.</p>
+    <p class="text-[#9CA3AF] text-[14px] mt-2">Історія погоди збирається після додавання міста та оновлень.</p>
+</div>
+{% else %}
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6 w-full">
+    {% if temp_hourly_chart %}
+    <script type="application/json" id="data-temp_hourly_chart">{{ temp_hourly_chart|safe }}</script>
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-4 shadow-sm w-full mx-auto max-w-[900px]">
+        <div id="temp_hourly_chart" class="w-full h-[350px]"></div>
+    </div>
+    {% endif %}
+
+    {% if humidity_chart %}
+    <script type="application/json" id="data-humidity_chart">{{ humidity_chart|safe }}</script>
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-4 shadow-sm w-full mx-auto max-w-[900px]">
+        <div id="humidity_chart" class="w-full h-[350px]"></div>
+    </div>
+    {% endif %}
+
+    {% if pressure_chart %}
+    <script type="application/json" id="data-pressure_chart">{{ pressure_chart|safe }}</script>
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-4 shadow-sm w-full mx-auto max-w-[900px]">
+        <div id="pressure_chart" class="w-full h-[350px]"></div>
+    </div>
+    {% endif %}
+
+    {% if forecast_minmax_chart %}
+    <script type="application/json" id="data-forecast_minmax_chart">{{ forecast_minmax_chart|safe }}</script>
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-4 shadow-sm w-full mx-auto max-w-[900px]">
+        <div id="forecast_minmax_chart" class="w-full h-[350px]"></div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    (function () {
+        function renderChart(dataId, divId) {
+            var dataEl = document.getElementById(dataId);
+            var chartDiv = document.getElementById(divId);
+            if (!dataEl || !chartDiv) return;
+
+            function tryRender() {
+                if (typeof Plotly === 'undefined') {
+                    setTimeout(tryRender, 200);
+                    return;
+                }
+                var fig = JSON.parse(dataEl.textContent);
+                Plotly.newPlot(divId, fig.data, fig.layout, { responsive: true });
+            }
+            tryRender();
+        }
+
+        renderChart('data-temp_hourly_chart', 'temp_hourly_chart');
+        renderChart('data-humidity_chart', 'humidity_chart');
+        renderChart('data-pressure_chart', 'pressure_chart');
+        renderChart('data-forecast_minmax_chart', 'forecast_minmax_chart');
+    })();
+</script>
+{% endif %}

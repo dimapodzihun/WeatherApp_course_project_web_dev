@@ -1,0 +1,73 @@
+<!-- container for partial card logic -->
+<div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm relative group overflow-hidden h-full flex flex-col justify-between">
+    
+    <!-- Впровадження анімації фону -->
+    {% set desc = city.description|lower %}
+    {% set simulated_icon = '01d' %}
+    {% if 'хмар' in desc %}
+        {% set simulated_icon = '03d' %}
+    {% elif 'дощ' in desc or 'мряка' in desc %}
+        {% set simulated_icon = '09d' %}
+    {% elif 'сніг' in desc %}
+        {% set simulated_icon = '13d' %}
+    {% elif 'гроз' in desc %}
+        {% set simulated_icon = '11d' %}
+    {% elif 'туман' in desc or 'мла' in desc %}
+        {% set simulated_icon = '50d' %}
+    {% endif %}
+    {% set weather = {'icon': simulated_icon} %}
+    {% include 'partials/weather_background.html' %}
+
+    <div class="relative z-10 w-full h-full flex flex-col justify-between">
+        <!-- Дані міста -->
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-[18px] font-semibold text-inherit">{{ city.name }}, {{ city.country_name or city.country }}</h3>
+                <p class="text-[13px] mt-1 text-inherit opacity-90">{{ city.description }}</p>
+                {% if city.updated_at %}
+                <p class="text-[11px] mt-1 text-inherit opacity-75">Оновлено: {{ city.updated_at }}</p>
+                {% endif %}
+            </div>
+            <div class="text-[32px] font-bold text-inherit">
+                {% if city.temperature is not none %}{{ city.temperature }}°{% else %}--°{% endif %}
+            </div>
+        </div>
+        
+        <!-- Кнопки управління (Glassmorphism стиль, щоб гармоніювати з анімованим фоном) -->
+        <div class="flex gap-2 justify-end pt-3 mt-2">
+            <!-- ↻ Оновити -->
+            <button hx-post="/cities/{{ city.id }}/refresh" 
+                    hx-target="closest div.city-card"
+                    class="bg-white/20 hover:bg-white/30 text-inherit border border-white/30 backdrop-blur-sm rounded-lg px-3 py-1.5 text-[13px] font-medium transition flex items-center justify-center min-w-[95px]">
+                <svg class="htmx-indicator hidden animate-spin mr-1.5 h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="default-icon mr-1">↻</span>
+                <span class="default-icon-text">Оновити</span>
+            </button>
+            
+            <!-- ✕ Видалити з підтвердженням -->
+            <div class="relative inline-block" id="delete-container-{{ city.id }}">
+                <button onclick="document.getElementById('confirm-{{ city.id }}').classList.remove('hidden'); this.classList.add('hidden');" 
+                        class="bg-red-500/80 hover:bg-red-600 border border-red-500/50 text-white backdrop-blur-sm rounded-lg px-3 py-1.5 text-[13px] font-medium transition">
+                    ✕ Видалити
+                </button>
+                <div id="confirm-{{ city.id }}" class="hidden flex items-center gap-1 animate-fade-in">
+                    <span class="text-[12px] text-red-100 font-medium mr-1 border border-red-300/30 px-2 py-1 rounded bg-black/20 backdrop-blur-sm">Підтвердити?</span>
+                    <button hx-delete="/cities/{{ city.id }}"
+                            hx-target="closest div.city-card"
+                            hx-swap="outerHTML swap:500ms"
+                            hx-on::after-request="setTimeout(() => htmx.trigger(document.body, 'refresh-cities'), 550)"
+                            class="bg-red-500/90 text-white hover:bg-red-600 border border-red-500/50 rounded-md px-2 py-1.5 text-[12px] font-medium transition">
+                        Так
+                    </button>
+                    <button onclick="document.getElementById('confirm-{{ city.id }}').classList.add('hidden'); this.parentElement.previousElementSibling.classList.remove('hidden');" 
+                            class="bg-white/20 text-inherit hover:bg-white/30 border border-white/30 backdrop-blur-sm rounded-md px-2 py-1.5 text-[12px] font-medium transition">
+                        Ні
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+/* 1. HTMX Нативні транзиції (замість @keyframes) */
+#cities-grid .city-card.htmx-added {
+    opacity: 0;
+    transform: translateY(20px);
+}
+#cities-grid .city-card {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* Стаггер для серії карток */
+#cities-grid .city-card:nth-child(1) { transition-delay: 0.0s; }
+#cities-grid .city-card:nth-child(2) { transition-delay: 0.08s; }
+#cities-grid .city-card:nth-child(3) { transition-delay: 0.16s; }
+#cities-grid .city-card:nth-child(4) { transition-delay: 0.24s; }
+#cities-grid .city-card:nth-child(5) { transition-delay: 0.32s; }
+#cities-grid .city-card:nth-child(6) { transition-delay: 0.40s; }
+#cities-grid .city-card:nth-child(7) { transition-delay: 0.48s; }
+#cities-grid .city-card:nth-child(8) { transition-delay: 0.56s; }
+#cities-grid .city-card:nth-child(9) { transition-delay: 0.64s; }
+#cities-grid .city-card:nth-child(10) { transition-delay: 0.72s; }
+#cities-grid .city-card:nth-child(11) { transition-delay: 0.80s; }
+#cities-grid .city-card:nth-child(12) { transition-delay: 0.88s; }
+
+/* 2. Анімація видалення */
+#cities-grid .city-card.htmx-swapping {
+    opacity: 0 !important;
+    transform: scale(0.9) !important;
+    transition-delay: 0s !important; /* Усуваємо затримку під час видалення */
+}
+
+/* 3. Спінер на кнопці Оновити */
+.htmx-request .htmx-indicator {
+    display: inline-block !important;
+}
+.htmx-request .default-icon {
+    display: none !important;
+}
+</style>
+<div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- Верхній блок: Пошук та Вітання (для гостей) -->
+    <div class="{% if session.get('user_id') %}w-full max-w-2xl mx-auto mb-10{% else %}grid grid-cols-1 lg:grid-cols-3 gap-6{% endif %}">
+        
+        <!-- Блок пошуку -->
+        <div class="{% if not session.get('user_id') %}lg:col-span-1{% endif %} bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm h-fit">
+            <h2 class="text-[20px] font-semibold text-[#1F2937] mb-4">Пошук міста</h2>
+            <div class="relative" data-search-wrapper data-result-target="#search-result">
+                <input type="text" name="q" id="main-search" placeholder="Введіть назву міста..."
+                       class="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 outline-none transition-colors"
+                       autocomplete="off"
+                       oninput="
+                           if(this.value.length < 2) {
+                               document.getElementById('search-result').innerHTML = '';
+                               document.getElementById('main-suggestions').innerHTML = '';
+                           } else {
+                               htmx.ajax('GET', '/search/suggestions?q=' + encodeURIComponent(this.value), {target: '#main-suggestions', swap: 'innerHTML'});
+                               if(this.value.length >= 3) htmx.ajax('GET', '/search?q=' + encodeURIComponent(this.value), {target: '#search-result', swap: 'innerHTML'});
+                           }
+                       "
+                       onblur="setTimeout(() => { document.getElementById('main-suggestions').innerHTML = ''; }, 200)">
+                <div id="main-suggestions" class="absolute w-full z-50"></div>
+            </div>
+
+            <div id="search-result" class="mt-4">
+                <!-- Картка з результатом пошуку -->
+            </div>
+            <div id="hint-container" class="mt-2">
+                <!-- Підказка авторизації -->
+            </div>
+        </div>
+        
+        <!-- Блок Вітання (тільки для гостей) -->
+        {% if not session.get('user_id') %}
+        <div class="lg:col-span-2">
+            <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm flex flex-col items-center justify-center h-full min-h-[200px] text-center">
+                <h2 class="text-[24px] font-bold text-[#1F2937] mb-2">Вітаємо у WeatherApp</h2>
+                <p class="text-[14px] text-[#6B7280] mb-6 max-w-md">Увійдіть або зареєструйтесь, щоб зберігати міста, переглядати детальний прогноз та графіки.</p>
+                <div class="flex items-center gap-4">
+                    <a href="/login" class="bg-[#2563EB] text-white rounded-lg px-6 py-2 font-medium hover:bg-blue-700 transition">Увійти</a>
+                    <a href="/register" class="bg-[#F3F4F6] text-[#1F2937] border border-[#E5E7EB] rounded-lg px-6 py-2 font-medium hover:bg-gray-100 transition">Реєстрація</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Блок збережених міст -->
+    {% if session.get('user_id') %}
+    <div>
+        <h2 class="text-[24px] font-semibold text-[#1F2937] mb-6">Мої міста</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cities-grid"
+             hx-get="/cities/all" 
+             hx-trigger="load, refresh-cities from:body, every 10m">
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

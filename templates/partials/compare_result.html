@@ -1,0 +1,270 @@
+<div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm animate-fade-in mt-6">
+    <div class="flex items-center gap-4 mb-4 justify-end">
+        <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#2563EB] inline-block"></span>
+            <span class="text-[13px] text-[#6B7280]">{{ w1.city }}, {{ w1.country_name or w1.country }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#059669] inline-block"></span>
+            <span class="text-[13px] text-[#6B7280]">{{ w2.city }}, {{ w2.country_name or w2.country }}</span>
+        </div>
+    </div>
+
+    {% if compare_summary %}
+    <div class="mb-6 rounded-xl border border-[#DBEAFE] bg-[#EFF6FF] p-5">
+        <h3 class="text-[18px] font-semibold text-[#1D4ED8] mb-3">Покращене порівняння міст</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for item in compare_summary %}
+            <div class="rounded-lg bg-white border border-[#BFDBFE] px-4 py-3 text-[14px] text-[#1F2937]">
+                {{ item }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="flex border-b border-[#E5E7EB] mb-6 overflow-x-auto" id="compare-tabs">
+        <button onclick="showCompareTab('current')" id="tab-current" class="px-6 py-3 border-b-2 font-medium text-[15px] whitespace-nowrap outline-none border-[#2563EB] text-[#2563EB]">
+            Зараз
+        </button>
+        <button onclick="showCompareTab('forecast')" id="tab-forecast" class="px-6 py-3 border-b-2 font-medium text-[15px] whitespace-nowrap outline-none border-transparent text-[#6B7280]">
+            5 днів
+        </button>
+        <button onclick="showCompareTab('chart'); renderCompareChart();" id="tab-chart" class="px-6 py-3 border-b-2 font-medium text-[15px] whitespace-nowrap outline-none border-transparent text-[#6B7280]">
+            Графіки
+        </button>
+    </div>
+
+    <div id="compare-panel-current" class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="border border-[#E5E7EB] rounded-xl p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[20px] font-bold text-[#2563EB]">{{ w1.city }}, {{ w1.country_name or w1.country }}</h3>
+                    <img src="https://openweathermap.org/img/wn/{{ w1.icon }}.png" alt="weather icon">
+                </div>
+                <div class="space-y-4">
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">Температура</span>
+                        <span id="c1-temp" class="font-bold text-[#1F2937]" data-val="{{ w1.temperature }}" data-cmp="{{ w2.temperature }}" data-better="higher">{{ w1.temperature }}&deg;C</span>
+                    </div>
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">Тиск</span>
+                        <span class="font-bold text-[#1F2937]">{{ w1.pressure }} гПа</span>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[14px] mb-1">
+                            <span class="text-[#6B7280]">Вологість</span>
+                            <span id="c1-hum" class="font-bold text-[#1F2937]" data-val="{{ w1.humidity }}" data-cmp="{{ w2.humidity }}" data-better="lower">{{ w1.humidity }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5">
+                            <div class="bg-[#2563EB] h-1.5 rounded-full compare-humidity-bar" data-width="{{ w1.humidity }}"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">Вітер</span>
+                        <span id="c1-wind" class="font-bold text-[#1F2937]" data-val="{{ w1.wind_speed }}" data-cmp="{{ w2.wind_speed }}" data-better="lower">{{ w1.wind_speed }} м/с</span>
+                    </div>
+                    {% if w1.comfort_ml %}
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">ML-комфортність</span>
+                        <span class="font-bold
+                            {% if w1.comfort_ml.slug == 'comfortable' %}text-[#166534]
+                            {% elif w1.comfort_ml.slug == 'moderate' %}text-[#92400E]
+                            {% else %}text-[#991B1B]{% endif %}">{{ w1.comfort_ml.label }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="text-[14px] text-[#6B7280] text-center pt-2">{{ w1.description }}</div>
+                </div>
+            </div>
+
+            <div class="border border-[#E5E7EB] rounded-xl p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-[20px] font-bold text-[#059669]">{{ w2.city }}, {{ w2.country_name or w2.country }}</h3>
+                    <img src="https://openweathermap.org/img/wn/{{ w2.icon }}.png" alt="weather icon">
+                </div>
+                <div class="space-y-4">
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">Температура</span>
+                        <span id="c2-temp" class="font-bold text-[#1F2937]" data-val="{{ w2.temperature }}" data-cmp="{{ w1.temperature }}" data-better="higher">{{ w2.temperature }}&deg;C</span>
+                    </div>
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">Тиск</span>
+                        <span class="font-bold text-[#1F2937]">{{ w2.pressure }} гПа</span>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-[14px] mb-1">
+                            <span class="text-[#6B7280]">Вологість</span>
+                            <span id="c2-hum" class="font-bold text-[#1F2937]" data-val="{{ w2.humidity }}" data-cmp="{{ w1.humidity }}" data-better="lower">{{ w2.humidity }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5">
+                            <div class="bg-[#059669] h-1.5 rounded-full compare-humidity-bar" data-width="{{ w2.humidity }}"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">Вітер</span>
+                        <span id="c2-wind" class="font-bold text-[#1F2937]" data-val="{{ w2.wind_speed }}" data-cmp="{{ w1.wind_speed }}" data-better="lower">{{ w2.wind_speed }} м/с</span>
+                    </div>
+                    {% if w2.comfort_ml %}
+                    <div class="flex justify-between text-[14px]">
+                        <span class="text-[#6B7280]">ML-комфортність</span>
+                        <span class="font-bold
+                            {% if w2.comfort_ml.slug == 'comfortable' %}text-[#166534]
+                            {% elif w2.comfort_ml.slug == 'moderate' %}text-[#92400E]
+                            {% else %}text-[#991B1B]{% endif %}">{{ w2.comfort_ml.label }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="text-[14px] text-[#6B7280] text-center pt-2">{{ w2.description }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="rounded-xl border border-[#FDE68A] bg-[#FFFBEB] p-5">
+                <h4 class="text-[16px] font-semibold text-[#92400E] mb-3">Попередження для {{ w1.city }}</h4>
+                {% if alerts1 %}
+                <div class="space-y-2">
+                    {% for alert in alerts1 %}
+                    <div class="rounded-lg border border-[#FDE68A] bg-white px-4 py-3 text-[14px] text-[#92400E]">{{ alert }}</div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-[14px] text-[#166534]">Небезпечних змін у найближчому прогнозі не виявлено.</div>
+                {% endif %}
+            </div>
+
+            <div class="rounded-xl border border-[#FDE68A] bg-[#FFFBEB] p-5">
+                <h4 class="text-[16px] font-semibold text-[#92400E] mb-3">Попередження для {{ w2.city }}</h4>
+                {% if alerts2 %}
+                <div class="space-y-2">
+                    {% for alert in alerts2 %}
+                    <div class="rounded-lg border border-[#FDE68A] bg-white px-4 py-3 text-[14px] text-[#92400E]">{{ alert }}</div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="rounded-lg border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-[14px] text-[#166534]">Небезпечних змін у найближчому прогнозі не виявлено.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div id="compare-panel-forecast" class="hidden grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+            <h4 class="text-[16px] font-semibold text-[#2563EB] mb-4">{{ w1.city }}, {{ w1.country_name or w1.country }}</h4>
+            <div class="space-y-3">
+                {% for d in f1 %}
+                <div class="flex items-center justify-between border-b border-[#E5E7EB] pb-2 text-[14px]">
+                    <span class="w-16 text-[#6B7280]">{{ d.weekday }}, {{ d.date }}</span>
+                    <img src="https://openweathermap.org/img/wn/{{ d.icon }}.png" alt="icon" class="w-8 h-8">
+                    <span class="w-20 font-semibold text-right">
+                        {{ d.temp_max }}&deg; <span class="text-[#6B7280] font-normal">/ {{ d.temp_min }}&deg;</span>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <h4 class="text-[16px] font-semibold text-[#059669] mb-4">{{ w2.city }}, {{ w2.country_name or w2.country }}</h4>
+            <div class="space-y-3">
+                {% for d in f2 %}
+                <div class="flex items-center justify-between border-b border-[#E5E7EB] pb-2 text-[14px]">
+                    <span class="w-16 text-[#6B7280]">{{ d.weekday }}, {{ d.date }}</span>
+                    <img src="https://openweathermap.org/img/wn/{{ d.icon }}.png" alt="icon" class="w-8 h-8">
+                    <span class="w-20 font-semibold text-right">
+                        {{ d.temp_max }}&deg; <span class="text-[#6B7280] font-normal">/ {{ d.temp_min }}&deg;</span>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="compare-panel-chart" class="hidden grid grid-cols-1 xl:grid-cols-2 gap-8">
+        {% if comp_temp %}
+        <script type="application/json" id="data-comp_temp">{{ comp_temp|safe }}</script>
+        <div class="border border-[#E5E7EB] rounded-xl p-4 shadow-sm">
+            <div id="comp-temp" class="w-full h-[400px]"></div>
+        </div>
+        {% endif %}
+
+        {% if comp_hum %}
+        <script type="application/json" id="data-comp_hum">{{ comp_hum|safe }}</script>
+        <div class="border border-[#E5E7EB] rounded-xl p-4 shadow-sm">
+            <div id="comp-hum" class="w-full h-[400px]"></div>
+        </div>
+        {% endif %}
+
+        {% if comp_current %}
+        <script type="application/json" id="data-comp_current">{{ comp_current|safe }}</script>
+        <div class="border border-[#E5E7EB] rounded-xl p-4 shadow-sm">
+            <div id="comp-current" class="w-full h-[400px]"></div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script>
+    document.querySelectorAll("[data-val][data-cmp][data-better]").forEach(function (el) {
+        var val = parseFloat(el.dataset.val);
+        var cmp = parseFloat(el.dataset.cmp);
+        var better = el.dataset.better;
+        var isWinner = better === "higher" ? val > cmp : val < cmp;
+
+        if (isWinner) {
+            el.classList.remove("text-[#1F2937]");
+            el.classList.add("text-[#059669]");
+        }
+    });
+
+    document.querySelectorAll(".compare-humidity-bar").forEach(function (bar) {
+        var width = parseFloat(bar.dataset.width);
+        if (!Number.isNaN(width)) {
+            bar.style.width = width + "%";
+        }
+    });
+
+    function showCompareTab(tab) {
+        ["current", "forecast", "chart"].forEach(function (panelName) {
+            var panel = document.getElementById("compare-panel-" + panelName);
+            var button = document.getElementById("tab-" + panelName);
+
+            if (panelName === tab) {
+                panel.classList.remove("hidden");
+                button.classList.add("border-[#2563EB]", "text-[#2563EB]");
+                button.classList.remove("border-transparent", "text-[#6B7280]");
+            } else {
+                panel.classList.add("hidden");
+                button.classList.remove("border-[#2563EB]", "text-[#2563EB]");
+                button.classList.add("border-transparent", "text-[#6B7280]");
+            }
+        });
+    }
+
+    var compareChartRendered = false;
+
+    function renderCompareChart() {
+        if (compareChartRendered) return;
+
+        function renderOne(dataId, divId) {
+            var dataEl = document.getElementById(dataId);
+            var chartDiv = document.getElementById(divId);
+            if (!dataEl || !chartDiv) return;
+
+            function tryR() {
+                if (typeof Plotly === 'undefined') {
+                    setTimeout(tryR, 200);
+                    return;
+                }
+                var f = JSON.parse(dataEl.textContent);
+                Plotly.newPlot(divId, f.data, f.layout, { responsive: true });
+            }
+            tryR();
+        }
+
+        renderOne("data-comp_temp", "comp-temp");
+        renderOne("data-comp_hum", "comp-hum");
+        renderOne("data-comp_current", "comp-current");
+
+        compareChartRendered = true;
+    }
+</script>

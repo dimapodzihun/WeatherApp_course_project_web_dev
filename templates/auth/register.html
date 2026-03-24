@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[80vh]">
+    <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm w-full max-w-md">
+        <h2 class="text-[24px] font-semibold text-[#1F2937] text-center mb-6">Реєстрація</h2>
+        
+        <form method="POST" action="/register" class="space-y-4" id="registerForm">
+            <!-- Email -->
+            <div>
+                <label for="email" class="block text-[13px] font-normal text-[#6B7280] mb-1">Email</label>
+                <input type="email" id="email" name="email" required
+                       class="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 outline-none transition-colors"
+                       placeholder="your@email.com"
+                       value="{{ request.form.email if request.form.email else '' }}">
+                <p id="emailError" class="hidden text-[#DC2626] text-sm mt-1"></p>
+            </div>
+            
+            <!-- Пароль -->
+            <div>
+                <label for="password" class="block text-[13px] font-normal text-[#6B7280] mb-1">Пароль (мін. 8 символів)</label>
+                <div class="relative">
+                    <input type="password" id="password" name="password" required minlength="8"
+                           class="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 outline-none transition-colors"
+                           placeholder="••••••••">
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 text-[#6B7280] hover:text-[#1F2937]" onclick="togglePassword('password')">
+                        👁
+                    </button>
+                </div>
+                <p id="passwordError" class="hidden text-[#DC2626] text-sm mt-1"></p>
+            </div>
+            
+            <!-- Підтвердження пароля -->
+            <div>
+                <label for="confirm_password" class="block text-[13px] font-normal text-[#6B7280] mb-1">Підтвердження пароля</label>
+                <div class="relative">
+                    <input type="password" id="confirm_password" name="confirm_password" required minlength="8"
+                           class="w-full border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] focus:ring-2 focus:ring-blue-200 outline-none transition-colors"
+                           placeholder="••••••••">
+                    <button type="button" class="absolute inset-y-0 right-0 px-3 text-[#6B7280] hover:text-[#1F2937]" onclick="togglePassword('confirm_password')">
+                        👁
+                    </button>
+                </div>
+                <p id="confirmPasswordError" class="hidden text-[#DC2626] text-sm mt-1"></p>
+            </div>
+
+            {% if error %}
+            <p class="text-[#DC2626] text-sm text-center">{{ error }}</p>
+            {% endif %}
+
+            <button type="submit" class="w-full bg-[#2563EB] text-white rounded-lg px-4 py-2 font-medium hover:bg-blue-700 transition-colors mt-2">
+                Зареєструватись
+            </button>
+        </form>
+        
+        <div class="mt-6 text-center">
+            <a href="/login" class="text-[13px] text-[#2563EB] hover:underline">Вже маєте акаунт? Увійти</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+        } else {
+            input.type = 'password';
+        }
+    }
+
+    // Клієнтська валідація
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        const err = document.getElementById('confirmPasswordError');
+        const confirmInput = document.getElementById('confirm_password');
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            err.textContent = 'Паролі не співпадають';
+            err.classList.remove('hidden');
+            confirmInput.classList.add('border-[#DC2626]');
+        } else {
+            err.classList.add('hidden');
+            confirmInput.classList.remove('border-[#DC2626]');
+        }
+    });
+</script>
+{% endblock %}
