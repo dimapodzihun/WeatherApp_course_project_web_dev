@@ -32,5 +32,5 @@
 - ☁️ OpenWeather API
 - 📊 Pandas
 - ⚡ HTMX
-- 📉 Plotly
+- 📉 Python (Plotly)
 
