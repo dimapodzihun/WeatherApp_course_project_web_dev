@@ -60,11 +60,11 @@ def build_history_summary(df):
     pressure_change = round(float(latest["pressure"] - first["pressure"]), 1)
 
     if temp_change >= 2:
-        trend_label = "Теплішання"
+        trend_label = "Стає тепліше"
     elif temp_change <= -2:
-        trend_label = "Похолодання"
+        trend_label = "Стає холодніше"
     else:
-        trend_label = "Відносна стабільність"
+        trend_label = "Без різких змін"
 
     return {
         "samples": int(len(df)),
@@ -94,11 +94,11 @@ def build_climate_summary(df):
     wind_shift = round(float(recent["wind_speed"].mean() - baseline["wind_speed"].mean()), 1)
 
     if temp_anomaly >= 1.5:
-        climate_signal = "Позитивна температурна аномалія"
+        climate_signal = "Останнім часом тепліше, ніж раніше"
     elif temp_anomaly <= -1.5:
-        climate_signal = "Негативна температурна аномалія"
+        climate_signal = "Останнім часом холодніше, ніж раніше"
     else:
-        climate_signal = "Помітних аномалій не виявлено"
+        climate_signal = "Погода змінюється без різких стрибків"
 
     return {
         "temp_anomaly": temp_anomaly,
@@ -128,13 +128,13 @@ def build_temperature_history_chart(df):
             x=df["time_label"].tolist(),
             y=rolling.round(1).tolist(),
             mode="lines",
-            name="Ковзне середнє",
+            name="Середня лінія",
             line=dict(color="#F59E0B", width=2, dash="dash"),
         )
     )
     fig.update_layout(
-        title="Історичний тренд температури",
-        xaxis_title="Час спостереження",
+        title="Як змінювалась температура",
+        xaxis_title="Час",
         yaxis_title="Температура (°C)",
         xaxis=dict(type="category", tickangle=-45),
         template="plotly_white",
@@ -170,8 +170,8 @@ def build_history_metrics_chart(df):
         )
     )
     fig.update_layout(
-        title="Історичні зміни вологості та тиску",
-        xaxis=dict(type="category", tickangle=-45, title="Час спостереження"),
+        title="Як змінювались вологість і тиск",
+        xaxis=dict(type="category", tickangle=-45, title="Час"),
         yaxis=dict(title="Вологість (%)"),
         yaxis2=dict(title="Тиск (гПа)", overlaying="y", side="right"),
         template="plotly_white",
@@ -194,7 +194,7 @@ def build_climate_change_chart(df):
         go.Bar(
             x=df["time_label"].tolist(),
             y=anomaly_temp.tolist(),
-            name="Температурна аномалія",
+            name="Відхилення температури",
             marker_color=["#DC2626" if value >= 0 else "#2563EB" for value in anomaly_temp.tolist()],
         )
     )
@@ -203,15 +203,15 @@ def build_climate_change_chart(df):
             x=df["time_label"].tolist(),
             y=rolling_humidity.round(1).tolist(),
             mode="lines+markers",
-            name="Вологість, ковзне середнє",
+            name="Середня вологість",
             line=dict(color="#059669", width=2),
             yaxis="y2",
         )
     )
     fig.update_layout(
-        title="Візуалізація кліматичних змін та аномалій",
-        xaxis=dict(type="category", tickangle=-45, title="Час спостереження"),
-        yaxis=dict(title="Температурна аномалія (°C)"),
+        title="Наскільки погода відхилялась від звичної",
+        xaxis=dict(type="category", tickangle=-45, title="Час"),
+        yaxis=dict(title="Відхилення температури (°C)"),
         yaxis2=dict(title="Вологість (%)", overlaying="y", side="right"),
         template="plotly_white",
         margin=dict(l=20, r=20, t=40, b=80),

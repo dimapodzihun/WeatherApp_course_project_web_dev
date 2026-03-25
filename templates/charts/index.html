@@ -5,7 +5,7 @@
     <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h2 class="text-[24px] font-semibold text-[#1F2937]">Графіки погоди</h2>
-            <p class="text-[#6B7280] text-[14px]">Прогнозні графіки на основі OpenWeather API</p>
+            <p class="text-[#6B7280] text-[14px]">Тут видно, як змінюватимуться температура, вологість і тиск.</p>
         </div>
 
         <form id="charts-form" class="flex flex-col sm:flex-row gap-3"
@@ -35,7 +35,7 @@
 
     {% if not cities %}
     <div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm">
-        <p class="text-[#6B7280] text-[16px]">У вас немає збережених міст. Додайте місто на головній сторінці.</p>
+        <p class="text-[#6B7280] text-[16px]">У вас ще немає збережених міст. Додайте місто на головній сторінці.</p>
     </div>
     {% endif %}
 </div>

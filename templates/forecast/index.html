@@ -24,9 +24,9 @@
     <div class="rounded-xl border border-[#DBEAFE] bg-[#EFF6FF] p-5 shadow-sm">
         <div class="flex items-center justify-between gap-3 flex-wrap">
             <div>
-                <h3 class="text-[18px] font-semibold text-[#1D4ED8]">ML-оцінка комфортності погоди</h3>
+                <h3 class="text-[18px] font-semibold text-[#1D4ED8]">Оцінка комфорту погоди</h3>
                 <p class="text-[14px] text-[#475569] mt-1">
-                    Модель `Decision Tree Classifier` оцінює поточні умови за температурою, вологістю, тиском і вітром.
+                    Система оцінює, наскільки нинішня погода може бути комфортною з урахуванням температури, вологості, тиску й вітру.
                 </p>
             </div>
             <div class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[14px] font-semibold
@@ -41,9 +41,9 @@
         </div>
         <p class="text-[13px] text-[#64748B] mt-3">
             {% if current_weather.comfort_ml.source == 'ml' %}
-            Оцінка побудована моделлю `Decision Tree Classifier`, навченою на {{ current_weather.comfort_ml.samples }} записах з `weather_history`.
+            Оцінка зроблена на основі ваших збережених спостережень за погодою.
             {% else %}
-            Даних у `weather_history` поки недостатньо для стабільного навчання, тому використано rule-based оцінку.
+            Даних поки замало, тому використано спрощену оцінку за правилами.
             {% endif %}
         </p>
     </div>
@@ -52,8 +52,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="text-[18px] font-semibold text-[#1F2937]">Персональні рекомендації</h3>
-                <span class="text-[13px] text-[#6B7280]">На основі поточних умов і короткого прогнозу</span>
+                <h3 class="text-[18px] font-semibold text-[#1F2937]">Поради на зараз</h3>
+                <span class="text-[13px] text-[#6B7280]">На основі поточної погоди і короткого прогнозу</span>
             </div>
             <div class="space-y-3">
                 {% for item in recommendations %}
@@ -80,7 +80,7 @@
             </div>
             {% else %}
             <div class="rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] px-4 py-3 text-[14px] text-[#166534]">
-                Небезпечних змін у найближчому прогнозі не виявлено.
+                Небезпечних змін у найближчому прогнозі не видно.
             </div>
             {% endif %}
         </div>
@@ -111,30 +111,30 @@
     <div class="space-y-4">
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div>
-                <h3 class="text-[20px] font-semibold text-[#1F2937]">Довгострокове прогнозування</h3>
-                <p class="text-[14px] text-[#6B7280]">Аналітична оцінка на базі короткострокового прогнозу та накопиченої історії спостережень</p>
+                <h3 class="text-[20px] font-semibold text-[#1F2937]">Орієнтовний прогноз на довший період</h3>
+                <p class="text-[14px] text-[#6B7280]">Це приблизна оцінка погоди на основі короткого прогнозу та попередніх спостережень.</p>
             </div>
             <div class="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 shadow-sm">
-                <div class="text-[13px] text-[#6B7280]">Загальна тенденція</div>
+                <div class="text-[13px] text-[#6B7280]">Що очікується далі</div>
                 <div class="text-[16px] font-semibold text-[#1F2937] mt-1">{{ extended_summary.trend_label }}</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-                <div class="text-[13px] text-[#6B7280]">Середній максимум на 14 днів</div>
+                <div class="text-[13px] text-[#6B7280]">Середня денна температура на 14 днів</div>
                 <div class="mt-2 text-[28px] font-bold text-[#1F2937]">{{ extended_summary.avg_14 }} °C</div>
             </div>
             <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-                <div class="text-[13px] text-[#6B7280]">Середній максимум на 30 днів</div>
+                <div class="text-[13px] text-[#6B7280]">Середня денна температура на 30 днів</div>
                 <div class="mt-2 text-[28px] font-bold text-[#1F2937]">{{ extended_summary.avg_30 }} °C</div>
             </div>
         </div>
 
         <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
             <div class="flex items-center justify-between gap-3 flex-wrap mb-4">
-                <h4 class="text-[18px] font-semibold text-[#1F2937]">Перші 14 днів аналітичного outlook</h4>
-                <span class="text-[13px] text-[#6B7280]">Це не прямий API forecast, а модельне продовження тенденції</span>
+                <h4 class="text-[18px] font-semibold text-[#1F2937]">Перші 14 днів приблизного прогнозу</h4>
+                <span class="text-[13px] text-[#6B7280]">Це не точний прогноз від сервісу погоди, а орієнтовна оцінка.</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                 {% for day in extended_summary.outlook_14 %}
@@ -144,11 +144,11 @@
                             <div class="text-[15px] font-semibold text-[#1F2937]">{{ day.weekday }}</div>
                             <div class="text-[13px] text-[#6B7280]">{{ day.date }}</div>
                         </div>
-                        <span class="rounded-full bg-[#EFF6FF] px-2.5 py-1 text-[12px] font-medium text-[#1D4ED8]">{{ day.confidence }}%</span>
+                        <span class="rounded-full bg-[#EFF6FF] px-2.5 py-1 text-[12px] font-medium text-[#1D4ED8]" title="Наскільки система впевнена в цьому приблизному прогнозі">Впевненість: {{ day.confidence }}%</span>
                     </div>
                     <div class="mt-4 text-[22px] font-bold text-[#1F2937]">{{ day.temp_max }} °C</div>
-                    <div class="text-[14px] text-[#6B7280]">Мінімум: {{ day.temp_min }} °C</div>
-                    <div class="text-[14px] text-[#6B7280]">Вологість: {{ day.humidity }}%</div>
+                    <div class="text-[14px] text-[#6B7280]">Вночі або зранку: {{ day.temp_min }} °C</div>
+                    <div class="text-[14px] text-[#6B7280]">Вологість повітря: {{ day.humidity }}%</div>
                     <div class="mt-3 text-[13px] text-[#374151]">{{ day.description }}</div>
                 </div>
                 {% endfor %}
@@ -165,7 +165,7 @@
 
     {% if not cities %}
     <div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm">
-        <p class="text-[#6B7280] text-[16px]">У вас немає збережених міст. Додайте місто на головній сторінці.</p>
+        <p class="text-[#6B7280] text-[16px]">У вас ще немає збережених міст. Додайте місто на головній сторінці.</p>
     </div>
     {% endif %}
 </div>

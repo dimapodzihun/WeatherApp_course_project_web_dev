@@ -4,6 +4,17 @@ from models import SavedCity, WeatherHistory
 import services.openweather as weather_api
 
 
+_WEEKDAYS_UA = {
+    "Mon": "Пн",
+    "Tue": "Вт",
+    "Wed": "Ср",
+    "Thu": "Чт",
+    "Fri": "Пт",
+    "Sat": "Сб",
+    "Sun": "Нд",
+}
+
+
 def _history_stats(city_id):
     rows = (
         WeatherHistory.query.filter_by(city_id=city_id)
@@ -62,17 +73,18 @@ def build_extended_outlook(city_id, horizon_days=14):
         projected_humidity = max(30, min(95, round(humidity_anchor + (offset % 5 - 2) * 2)))
         confidence = max(42, 80 - offset)
 
+        weekday_en = target_date.strftime("%a")
         result.append(
             {
                 "date": target_date.strftime("%d.%m"),
                 "date_iso": target_date.isoformat(),
-                "weekday": target_date.strftime("%a"),
+                "weekday": _WEEKDAYS_UA.get(weekday_en, weekday_en),
                 "temp_max": projected_max,
                 "temp_min": projected_min,
                 "humidity": projected_humidity,
                 "description": descriptions[(offset - 1) % len(descriptions)],
                 "confidence": confidence,
-                "source": "Аналітична модель",
+                "source": "Оціночний прогноз",
                 "days_ahead": (target_date - base_date).days,
             }
         )
@@ -96,11 +108,11 @@ def build_long_term_summary(city_id):
     avg_30 = round(sum(item["temp_max"] for item in outlook_30) / len(outlook_30), 1)
 
     if avg_30 >= avg_14 + 1:
-        trend_label = "Ймовірне поступове потепління"
+        trend_label = "Далі, ймовірно, буде тепліше"
     elif avg_30 <= avg_14 - 1:
-        trend_label = "Ймовірне поступове похолодання"
+        trend_label = "Далі, ймовірно, буде холодніше"
     else:
-        trend_label = "Очікується відносно стабільний фон"
+        trend_label = "Суттєвих змін не очікується"
 
     return {
         "outlook_14": outlook_14,

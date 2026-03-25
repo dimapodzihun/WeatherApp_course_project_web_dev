@@ -4,8 +4,8 @@
 <div class="max-w-6xl mx-auto space-y-6">
     <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <h2 class="text-[24px] font-semibold text-[#1F2937]">Історичні тренди та кліматичні зміни</h2>
-            <p class="text-[#6B7280] text-[14px]">Аналіз накопиченої історії `weather_history` для вибраного міста</p>
+            <h2 class="text-[24px] font-semibold text-[#1F2937]">Як змінювалась погода</h2>
+            <p class="text-[#6B7280] text-[14px]">Прості графіки та короткі висновки на основі збереженої історії погоди.</p>
         </div>
         <form hx-get="/analytics" hx-target="body" hx-push-url="true">
             <select name="city_id" class="border border-[#E5E7EB] rounded-lg px-3 py-2 text-[#1F2937] focus:border-[#2563EB] outline-none" onchange="this.form.dispatchEvent(new Event('submit'))">
@@ -19,22 +19,22 @@
     {% if cities %}
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-            <div class="text-[13px] text-[#6B7280]">Кількість записів</div>
+            <div class="text-[13px] text-[#6B7280]">Скільки є записів</div>
             <div class="mt-2 text-[28px] font-bold text-[#1F2937]">{{ history_summary.samples }}</div>
             <div class="text-[13px] text-[#6B7280] mt-1">Період: {{ history_summary.period_start }} - {{ history_summary.period_end }}</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-            <div class="text-[13px] text-[#6B7280]">Температурний тренд</div>
+            <div class="text-[13px] text-[#6B7280]">Що з температурою</div>
             <div class="mt-2 text-[22px] font-semibold text-[#1F2937]">{{ history_summary.trend_label }}</div>
-            <div class="text-[14px] text-[#2563EB] mt-1">{{ history_summary.temp_change }} °C за період</div>
+            <div class="text-[14px] text-[#2563EB] mt-1">Зміна за період: {{ history_summary.temp_change }} °C</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-            <div class="text-[13px] text-[#6B7280]">Кліматичний сигнал</div>
+            <div class="text-[13px] text-[#6B7280]">Загальна картина</div>
             <div class="mt-2 text-[22px] font-semibold text-[#1F2937]">{{ climate_summary.climate_signal }}</div>
-            <div class="text-[14px] text-[#DC2626] mt-1">Аномалія температури: {{ climate_summary.temp_anomaly }} °C</div>
+            <div class="text-[14px] text-[#DC2626] mt-1">Різниця температури: {{ climate_summary.temp_anomaly }} °C</div>
         </div>
         <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm">
-            <div class="text-[13px] text-[#6B7280]">Супутні зміни</div>
+            <div class="text-[13px] text-[#6B7280]">Інші зміни</div>
             <div class="mt-2 text-[15px] text-[#1F2937]">Вологість: {{ climate_summary.humidity_anomaly }} %</div>
             <div class="text-[15px] text-[#1F2937] mt-1">Вітер: {{ climate_summary.wind_shift }} м/с</div>
             <div class="text-[15px] text-[#1F2937] mt-1">Тиск: {{ history_summary.pressure_change }} гПа</div>
@@ -66,12 +66,12 @@
     </div>
     {% else %}
     <div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm">
-        <p class="text-[#6B7280] text-[16px]">Для глибокого аналізу історичних трендів потрібно більше накопичених записів.</p>
+        <p class="text-[#6B7280] text-[16px]">Щоб показати ці графіки, потрібно трохи більше збережених даних.</p>
     </div>
     {% endif %}
     {% else %}
     <div class="bg-white border border-[#E5E7EB] rounded-xl p-10 text-center shadow-sm">
-        <p class="text-[#6B7280] text-[16px]">У вас немає збережених міст. Додайте місто на головній сторінці.</p>
+        <p class="text-[#6B7280] text-[16px]">У вас ще немає збережених міст. Додайте місто на головній сторінці.</p>
     </div>
     {% endif %}
 </div>
