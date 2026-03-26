@@ -54,8 +54,9 @@ def get_forecast_dataframe(city_id, days=5):
     return build_forecast_dataframe(raw_data, days)
 
 
-def get_forecast_dataframe_by_name(city_name, days=5):
-    raw_data = weather_api.get_forecast_raw(city_name)
+def get_forecast_dataframe_by_name(city_name, days=5, raw_data=None):
+    if raw_data is None:
+        raw_data = weather_api.get_forecast_raw(city_name)
     return build_forecast_dataframe(raw_data, days)
 
 
@@ -258,9 +259,9 @@ def build_radar_chart(df):
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
-def build_compare_temp_chart(city1, city2, days=5):
-    df1 = get_forecast_dataframe_by_name(city1, days)
-    df2 = get_forecast_dataframe_by_name(city2, days)
+def build_compare_temp_chart(city1, city2, days=5, raw_data1=None, raw_data2=None):
+    df1 = get_forecast_dataframe_by_name(city1, days, raw_data=raw_data1)
+    df2 = get_forecast_dataframe_by_name(city2, days, raw_data=raw_data2)
     if df1 is None or df2 is None or df1.empty or df2.empty:
         return None
 
@@ -326,9 +327,9 @@ def build_compare_current_bar(w1, w2):
     return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
-def build_compare_humidity_chart(city1, city2, days=5):
-    df1 = get_forecast_dataframe_by_name(city1, days)
-    df2 = get_forecast_dataframe_by_name(city2, days)
+def build_compare_humidity_chart(city1, city2, days=5, raw_data1=None, raw_data2=None):
+    df1 = get_forecast_dataframe_by_name(city1, days, raw_data=raw_data1)
+    df2 = get_forecast_dataframe_by_name(city2, days, raw_data=raw_data2)
     if df1 is None or df2 is None or df1.empty or df2.empty:
         return None
 

@@ -43,16 +43,19 @@ def _history_stats(city_id):
     }
 
 
-def build_extended_outlook(city_id, horizon_days=14):
-    city = SavedCity.query.get(city_id)
-    if city is None:
-        return []
+def build_extended_outlook(city_id, horizon_days=14, seed_daily=None, stats=None):
+    if seed_daily is None:
+        city = SavedCity.query.get(city_id)
+        if city is None:
+            return []
+        seed_daily = weather_api.get_forecast_5days(city.city_name) or []
 
-    seed_daily = weather_api.get_forecast_5days(city.city_name) or []
     if not seed_daily:
         return []
 
-    stats = _history_stats(city.id)
+    if stats is None:
+        stats = _history_stats(city_id)
+
     seed_daily = seed_daily[: min(5, len(seed_daily))]
     temp_anchor = sum(item["temp_max"] for item in seed_daily) / len(seed_daily)
     temp_floor = sum(item["temp_min"] for item in seed_daily) / len(seed_daily)
@@ -92,9 +95,10 @@ def build_extended_outlook(city_id, horizon_days=14):
     return result
 
 
-def build_long_term_summary(city_id):
-    outlook_14 = build_extended_outlook(city_id, 14)
-    outlook_30 = build_extended_outlook(city_id, 30)
+def build_long_term_summary(city_id, seed_daily=None):
+    stats = _history_stats(city_id)
+    outlook_14 = build_extended_outlook(city_id, 14, seed_daily=seed_daily, stats=stats)
+    outlook_30 = build_extended_outlook(city_id, 30, seed_daily=seed_daily, stats=stats)
     if not outlook_14 or not outlook_30:
         return {
             "outlook_14": [],

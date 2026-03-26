@@ -41,16 +41,19 @@ def index():
     current_weather = weather_api.get_current_weather(city_name)
     current_weather = weather_ml.enrich_weather_with_comfort(current_weather)
     raw_forecast = weather_api.get_forecast_raw(city_name) or []
-    forecast_5d = weather_api.get_forecast_5days(city_name) or []
+    forecast_5d = weather_api.build_forecast_5days_from_raw(raw_forecast) or []
     recommendations = weather_insights.build_personal_recommendations(current_weather, raw_forecast)
     alerts = weather_insights.build_weather_alerts(current_weather, raw_forecast)
-    extended_summary = long_term_forecast.build_long_term_summary(selected_city_obj.id)
+    extended_summary = long_term_forecast.build_long_term_summary(
+        selected_city_obj.id,
+        seed_daily=forecast_5d,
+    )
 
     selected_date = request.args.get("date")
     if selected_date:
-        hourly_data = weather_api.get_hourly_for_date(city_name, selected_date)
+        hourly_data = weather_api.build_hourly_for_date_from_raw(raw_forecast, selected_date)
     else:
-        hourly_data = weather_api.get_hourly_today(city_name) or []
+        hourly_data = weather_api.build_hourly_today_from_raw(raw_forecast) or []
 
     return render_template(
         "forecast/index.html",

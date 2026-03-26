@@ -33,15 +33,19 @@ def result():
     w1 = weather_ml.enrich_weather_with_comfort(w1)
     w2 = weather_ml.enrich_weather_with_comfort(w2)
 
-    f1 = weather_api.get_forecast_5days(city1) or []
-    f2 = weather_api.get_forecast_5days(city2) or []
+    raw_f1, raw_f2 = weather_api.get_two_forecasts_raw(city1, city2)
+    raw_f1 = raw_f1 or []
+    raw_f2 = raw_f2 or []
+
+    f1 = weather_api.build_forecast_5days_from_raw(raw_f1) or []
+    f2 = weather_api.build_forecast_5days_from_raw(raw_f2) or []
     
-    comp_temp = charts_builder.build_compare_temp_chart(city1, city2)
-    comp_hum = charts_builder.build_compare_humidity_chart(city1, city2)
+    comp_temp = charts_builder.build_compare_temp_chart(city1, city2, raw_data1=raw_f1, raw_data2=raw_f2)
+    comp_hum = charts_builder.build_compare_humidity_chart(city1, city2, raw_data1=raw_f1, raw_data2=raw_f2)
     comp_current = charts_builder.build_compare_current_bar(w1, w2)
     compare_summary = weather_insights.build_compare_summary(w1, w2, f1, f2)
-    alerts1 = weather_insights.build_weather_alerts(w1, weather_api.get_forecast_raw(city1) or [])
-    alerts2 = weather_insights.build_weather_alerts(w2, weather_api.get_forecast_raw(city2) or [])
+    alerts1 = weather_insights.build_weather_alerts(w1, raw_f1)
+    alerts2 = weather_insights.build_weather_alerts(w2, raw_f2)
     
     return render_template(
         'partials/compare_result.html',
