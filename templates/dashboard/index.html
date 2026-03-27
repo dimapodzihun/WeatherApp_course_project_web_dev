@@ -44,11 +44,17 @@
 </style>
 <div class="max-w-6xl mx-auto space-y-8">
     
-    <!-- Верхній блок: Пошук та Вітання (для гостей) -->
-    <div class="{% if session.get('user_id') %}w-full max-w-2xl mx-auto mb-10{% else %}grid grid-cols-1 lg:grid-cols-3 gap-6{% endif %}">
-        
+    <!-- Верхній блок: пошук та вітання -->
+    <div class="{% if session.get('user_id') %}grid grid-cols-1 lg:grid-cols-3 gap-6 items-start mb-10{% else %}grid grid-cols-1 lg:grid-cols-3 gap-6{% endif %}">
+        {% if session.get('user_id') %}
+        <div class="bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm min-h-[140px] flex flex-col justify-center">
+            <p class="text-[13px] uppercase tracking-[0.18em] text-[#6B7280] mb-2">Поточна дата</p>
+            <p class="text-[32px] font-bold text-[#1F2937] leading-none">{{ current_date }}</p>
+        </div>
+        {% endif %}
+
         <!-- Блок пошуку -->
-        <div class="{% if not session.get('user_id') %}lg:col-span-1{% endif %} bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm h-fit">
+        <div class="{% if session.get('user_id') %}lg:col-span-2{% else %}lg:col-span-1{% endif %} bg-white border border-[#E5E7EB] rounded-xl p-5 shadow-sm h-fit">
             <h2 class="text-[20px] font-semibold text-[#1F2937] mb-4">Пошук міста</h2>
             <div class="relative" data-search-wrapper data-result-target="#search-result">
                 <input type="text" name="q" id="main-search" placeholder="Введіть назву міста..."
@@ -75,7 +81,7 @@
             </div>
         </div>
         
-        <!-- Блок Вітання (тільки для гостей) -->
+        <!-- Блок вітання для гостей -->
         {% if not session.get('user_id') %}
         <div class="lg:col-span-2">
             <div class="bg-white border border-[#E5E7EB] rounded-xl p-6 shadow-sm flex flex-col items-center justify-center h-full min-h-[200px] text-center">

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Blueprint, render_template, request, session
 
 import services.openweather as weather_api
@@ -28,6 +30,7 @@ def index():
         "dashboard/index.html",
         saved_cities=saved_cities,
         current_weather=current_weather,
+        current_date=datetime.now().strftime("%d.%m.%Y"),
     )
 
 
