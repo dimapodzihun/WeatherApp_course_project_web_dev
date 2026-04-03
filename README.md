@@ -39,9 +39,10 @@
 - 🌐 HTML
 - 🎨 Tailwind CSS
 - ☁️ OpenWeather API
-- 📊 Pandas
+- 📊 Python (Pandas)
 - ⚡ HTMX
 - 📉 Python (Plotly)
+- Python (Scikit-learn)
 
   ---
 
